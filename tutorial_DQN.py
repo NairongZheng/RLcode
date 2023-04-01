@@ -57,7 +57,7 @@ import tensorlayer as tl
 # 注意：原代码默认为test，我改为了train。
 parser = argparse.ArgumentParser(description='Train or test neural net motor controller.')
 parser.add_argument('--train', dest='train', action='store_true', default=True)
-parser.add_argument('--test', dest='test', action='store_true', default=False)
+parser.add_argument('--test', dest='test', action='store_true', default=True)
 args = parser.parse_args()
 
 tl.logging.set_verbosity(tl.logging.DEBUG)
@@ -65,7 +65,7 @@ tl.logging.set_verbosity(tl.logging.DEBUG)
 #####################  hyper parameters  ####################
 lambd = .99             # 折扣率(decay factor)
 e = 0.1                 # epsilon-greedy算法参数，越大随机性越大，越倾向于探索行为。
-num_episodes = 10000    # 迭代次数
+num_episodes = 1000    # 迭代次数
 render = False          # 是否渲染游戏
 running_reward = None
 
@@ -113,14 +113,14 @@ if __name__ == '__main__':
     train_weights = qnetwork.trainable_weights  #模型的参数
 
     optimizer = tf.optimizers.SGD(learning_rate=0.1)   #定义优化器
-    env = gym.make('FrozenLake-v0')                    #定义环境
+    env = gym.make('FrozenLake-v1')                    #定义环境
 
     # ======开始训练=======
     if args.train:
         t0 = time.time()
         for i in range(num_episodes):
             ## 重置环境初始状态
-            s = env.reset()
+            s, _ = env.reset()
             rAll = 0
             for j in range(99):             # 最多探索99步。因为环境状态比较少，99步一般也够探索到最终状态了。
                 if render: env.render()
@@ -138,7 +138,7 @@ if __name__ == '__main__':
                     a[0] = env.action_space.sample()
 
                 # 输入到环境，获得下一步的state，reward，done
-                s1, r, d, _ = env.step(a[0])
+                s1, r, d, aaa, bbb = env.step(a[0])
 
                 # 把new-state 放入，预测下一个state的**所有动作**的Q值。
                 Q1 = qnetwork(np.asarray([to_one_hot(s1, 16)], dtype=np.float32)).numpy()
@@ -187,7 +187,7 @@ if __name__ == '__main__':
         for i in range(num_episodes):
             ## Reset environment and get first new observation
             episode_time = time.time()
-            s = env.reset()  # observation is state, integer 0 ~ 15
+            s, _ = env.reset()  # observation is state, integer 0 ~ 15
             rAll = 0
             for j in range(99):  # step index, maximum step is 99
                 if render: env.render()
@@ -197,7 +197,7 @@ if __name__ == '__main__':
                 a = np.argmax(allQ, 1)  # no epsilon, only greedy for testing
 
                 ## Get new state and reward from environment
-                s1, r, d, _ = env.step(a[0])
+                s1, r, d, aaa, bbb = env.step(a[0])
                 rAll += r
                 s = s1
                 ## Reduce chance of random action if an episode is done.

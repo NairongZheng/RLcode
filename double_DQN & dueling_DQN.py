@@ -123,7 +123,7 @@ class Double_DQN():
         '''
         更新Q_network，最小化target和Q的距离
         '''
-        s,y = self.process_data()
+        s, y = self.process_data()
         with tf.GradientTape() as tape:
             Q = self.Q_network(np.array(s,dtype='float32'))
             loss = tl.cost.mean_squared_error(Q,y)              # 最小化target和Q的距离
@@ -146,7 +146,7 @@ class Double_DQN():
             return a
 
     ## 开始训练       
-    def train(self,episode):
+    def train(self, episode):
         step = 0
         rend = 0
         for ep in range(episode):
@@ -161,7 +161,7 @@ class Double_DQN():
 
                 # 进行游戏
                 a = self.get_action(s)
-                s_,r,done,_ = self.env.step(a)
+                s_, r, done, aaa, bbb = self.env.step(a)
                 total_reward += r
                 step += 1
 

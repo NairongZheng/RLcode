@@ -23,7 +23,7 @@ import numpy as np
 # FrozenLake-v0是一个4*4的网络格子，每个格子可以是起始块，目标块、冻结块或者危险块。
 # 我们的目标是让智能体学习如何从开始块如何行动到目标块上，而不是移动到危险块上。
 # 智能体可以选择向上、向下、向左或者向右移动，同时游戏中还有可能吹来一阵风，将智能体吹到任意的方块上。
-env = gym.make('FrozenLake-v0')
+env = gym.make('FrozenLake-v1')
 
 # 设置是否渲染，展示游戏画面。
 render = False  
@@ -31,7 +31,7 @@ running_reward = None
 
 ##================= Implement Q-Table learning algorithm =====================##
 
-## 建立Q表格，并初始化为全0数组。形状为：[状态空间，动作空间]
+## 建立Q表格，并初始化为全0数组。形状为：[状态空间，动作空间(左右上下)]
 Q = np.zeros([env.observation_space.n, env.action_space.n])
 
 ## 设置更新的超参数
@@ -47,7 +47,7 @@ for i in range(num_episodes):
 
     ## 重置环境初始状态
     episode_time = time.time()          #用于记录运行时间，我们可以通过比较运行时间判断算法效率。
-    s = env.reset()                     #重置初始状态。
+    s, _ = env.reset()                     #重置初始状态。
     rAll = 0                            #用于记录这次游戏的总奖励，这里先初始化为0
 
     ## 开始Qlearning算法
@@ -60,7 +60,7 @@ for i in range(num_episodes):
         a = np.argmax(Q[s, :] + np.random.randn(1, env.action_space.n) * (1. / (i + 1)))
 
         ## 与环境互动，把动作放到env.step()函数，并返回下一状态S1，奖励，done，info
-        s1, r, d, _ = env.step(a)
+        s1, r, d, aaa, bbb = env.step(a)
 
         ## 更新Q表格
         Q[s, a] = Q[s, a] + lr * (r + lambd * np.max(Q[s1, :]) - Q[s, a])
